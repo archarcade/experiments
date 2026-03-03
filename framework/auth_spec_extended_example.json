@@ -1,0 +1,216 @@
+{
+  "metadata": {
+    "name": "abac_test_workload_final",
+    "description": "USENIX evaluation authorization specification",
+    "version": "3.0"
+  },
+  "resources": [
+    {
+      "type": "Database",
+      "name": "abac_test",
+      "attributes": {
+        "security_level": "high",
+        "compliance_tier": "tier1"
+      }
+    },
+    {
+      "type": "Table",
+      "name": "abac_test.employees",
+      "attributes": {
+        "data_classification": "public",
+        "table_type": "hr_data"
+      },
+      "schema": {
+        "columns": [
+          {"name": "id", "type": "INT", "constraints": "PRIMARY KEY"},
+          {"name": "name", "type": "VARCHAR(100)", "constraints": ""},
+          {"name": "department", "type": "VARCHAR(50)", "constraints": ""}
+        ]
+      },
+      "sample_data": [
+        {"id": 1, "name": "Alice", "department": "HR"},
+        {"id": 2, "name": "Bob", "department": "IT"},
+        {"id": 3, "name": "Charlie", "department": "Finance"}
+      ]
+    },
+    {
+      "type": "Table",
+      "name": "abac_test.projects",
+      "attributes": {
+        "data_classification": "private",
+        "table_type": "project_data"
+      },
+      "schema": {
+        "columns": [
+          {"name": "id", "type": "INT", "constraints": "PRIMARY KEY"},
+          {"name": "name", "type": "VARCHAR(100)", "constraints": ""},
+          {"name": "classification", "type": "VARCHAR(50)", "constraints": ""}
+        ]
+      },
+      "sample_data": [
+        {"id": 1, "name": "Project 1", "classification": "Public"},
+        {"id": 2, "name": "Project 2", "classification": "Internal"},
+        {"id": 3, "name": "Project 3", "classification": "Confidential"}
+      ]
+    },
+    {
+      "type": "Table",
+      "name": "abac_test.sensitive_data",
+      "attributes": {
+        "data_classification": "sensitive",
+        "table_type": "restricted"
+      },
+      "schema": {
+        "columns": [
+          {"name": "id", "type": "INT", "constraints": "PRIMARY KEY"},
+          {"name": "info", "type": "TEXT", "constraints": ""}
+        ]
+      },
+      "sample_data": [
+        {"id": 1, "info": "Sensitive data 1"},
+        {"id": 2, "info": "Sensitive data 2"},
+        {"id": 3, "info": "Sensitive data 3"}
+      ]
+    },
+    {
+      "type": "Table",
+      "name": "abac_test.audit_logs",
+      "attributes": {
+        "data_classification": "internal",
+        "table_type": "logging"
+      },
+      "schema": {
+        "columns": [
+          {"name": "log_id", "type": "INT", "constraints": "PRIMARY KEY"},
+          {"name": "event_type", "type": "VARCHAR(50)", "constraints": ""},
+          {"name": "user_id", "type": "INT", "constraints": ""},
+          {"name": "timestamp", "type": "TIMESTAMP", "constraints": "DEFAULT CURRENT_TIMESTAMP"}
+        ]
+      },
+      "sample_data": [
+        {"log_id": 1, "event_type": "LOGIN", "user_id": 1},
+        {"log_id": 2, "event_type": "QUERY", "user_id": 2},
+        {"log_id": 3, "event_type": "LOGOUT", "user_id": 1}
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "user_alice",
+      "password": "",
+      "host": "%",
+      "attributes": {
+        "user_role": "manager",
+        "clearance_level": "top_secret",
+        "department": "management"
+      }
+    },
+    {
+      "username": "user_bob",
+      "password": "",
+      "host": "%",
+      "attributes": {
+        "user_role": "employee",
+        "clearance_level": "confidential",
+        "department": "it"
+      }
+    },
+    {
+      "username": "user_charlie",
+      "password": "",
+      "host": "%",
+      "attributes": {
+        "user_role": "intern",
+        "clearance_level": "public",
+        "department": "intern_program"
+      }
+    },
+    {
+      "username": "user_dave",
+      "password": "",
+      "host": "%",
+      "attributes": {
+        "user_role": "auditor",
+        "clearance_level": "confidential",
+        "department": "compliance"
+      }
+    },
+    {
+      "username": "bench_user",
+      "password": "postgres",
+      "host": "%",
+      "attributes": {
+        "user_role": "benchmarking"
+      }
+    }
+  ],
+  "policies": [
+    {
+      "id": "database_level_access",
+      "privileges": ["SELECT"],
+      "condition": "principal.clearance_level == 'top_secret' AND resource.security_level == 'high'",
+      "description": "Top secret users can access high security databases"
+    },
+    {
+      "id": "manager_sensitive_access",
+      "privileges": ["SELECT"],
+      "condition": "principal.user_role == 'manager' AND resource.data_classification == 'sensitive'",
+      "description": "Managers can read sensitive data"
+    },
+    {
+      "id": "employee_private_access",
+      "privileges": ["SELECT", "INSERT", "UPDATE", "DELETE"],
+      "condition": "principal.user_role == 'employee' AND resource.data_classification == 'private'",
+      "description": "Employees have full access to private data"
+    },
+    {
+      "id": "intern_public_access",
+      "privileges": ["SELECT"],
+      "condition": "principal.user_role == 'intern' AND resource.data_classification == 'public'",
+      "description": "Interns can only read public data"
+    },
+    {
+      "id": "top_secret_clearance_sensitive",
+      "privileges": ["SELECT"],
+      "condition": "principal.clearance_level == 'top_secret' AND resource.data_classification == 'sensitive'",
+      "description": "Top secret clearance grants access to sensitive data"
+    },
+    {
+      "id": "bench_user_db_access",
+      "privileges": ["CONNECT"],
+      "condition": "principal is User AND principal.user_role == 'benchmarking' AND resource is Database",
+      "description": "Allow bench_user to connect to databases"
+    },
+    {
+      "id": "bench_user_schema_access",
+      "privileges": ["USAGE"],
+      "condition": "principal is User AND principal.user_role == 'benchmarking' AND resource is Schema",
+      "description": "Allow bench_user to use schemas (PostgreSQL)"
+    },
+    {
+      "id": "bench_user_table_access",
+      "privileges": ["SELECT", "INSERT", "UPDATE", "DELETE"],
+      "condition": "principal is User AND principal.user_role == 'benchmarking' AND resource is Table",
+      "description": "Allow bench_user to perform table operations"
+    },
+    {
+      "id": "column_access_default_accept",
+      "privileges": ["*"],
+      "condition": "resource is Column",
+      "description": "Allow all column-level checks (security is enforced at the table level)"
+    },
+    {
+      "id": "auditor_log_access",
+      "privileges": ["SELECT"],
+      "condition": "principal.user_role == 'auditor' AND resource.table_type == 'logging'",
+      "description": "Auditors can read audit logs"
+    },
+    {
+      "id": "manager_audit_access",
+      "privileges": ["SELECT", "DELETE"],
+      "condition": "principal.user_role == 'manager' AND resource.table_type == 'logging'",
+      "description": "Managers can manage audit logs"
+    }
+  ]
+}
+

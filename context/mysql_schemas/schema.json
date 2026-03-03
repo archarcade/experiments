@@ -1,0 +1,53 @@
+{
+  "MySQL": {
+    "entityTypes": {
+      "User": { "shape": { "type": "Record", "attributes": {} } },
+      "Table": { "shape": { "type": "Record", "attributes": {} } },
+      "Column": { "shape": { "type": "Record", "attributes": {} } },
+      "Database": { "shape": { "type": "Record", "attributes": {} } },
+      "Routine": { "shape": { "type": "Record", "attributes": {} } }
+    },
+    "actions": {
+      "SELECT": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table", "Column", "Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "INSERT": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table", "Column", "Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "UPDATE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table", "Column", "Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "DELETE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table", "Column", "Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "CREATE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database", "Table", "Routine"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "DROP": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database", "Table", "Routine"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "ALTER": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database", "Table", "Routine"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "GRANT": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database", "Table"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "REFERENCES": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "INDEX": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "EXECUTE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Routine"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "TRIGGER": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "CREATE VIEW": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "SHOW VIEW": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "SHOW DATABASES": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "LOCK TABLES": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "CONNECT": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "USAGE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database", "Table", "Column"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } }
+    }
+  },
+  "PostgreSQL": {
+    "entityTypes": {
+      "User": { "shape": { "type": "Record", "attributes": {} } },
+      "Table": { "shape": { "type": "Record", "attributes": {} } },
+      "Column": { "shape": { "type": "Record", "attributes": {} } },
+      "Schema": { "shape": { "type": "Record", "attributes": {} } },
+      "Database": { "shape": { "type": "Record", "attributes": {} } },
+      "Routine": { "shape": { "type": "Record", "attributes": {} } }
+    },
+    "actions": {
+      "SELECT": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table", "Column"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "INSERT": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table", "Column"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "UPDATE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table", "Column"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "DELETE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table", "Column"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "USAGE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Schema"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "CONNECT": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "TRUNCATE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "EXECUTE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Routine"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "CREATE": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Database", "Schema", "Table"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } },
+      "MAINTAIN": { "appliesTo": { "principalTypes": ["User"], "resourceTypes": ["Table"], "context": { "type": "Record", "attributes": { "day": { "type": "String" }, "time": { "type": "Long" }, "date": { "type": "Long" }, "ip": { "type": "Extension", "name": "ipaddr" } } } } }
+    }
+  }
+}

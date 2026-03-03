@@ -1,0 +1,178 @@
+services:
+  # PostgreSQL Services
+  postgres-baseline:
+    image: docker.io/lurkingryuu/postgres-cedar:latest
+    container_name: postgres-baseline
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: abac_test
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres-baseline-data:/var/lib/postgresql/data
+    networks:
+      - experiments
+    command:
+      - postgres
+      - -c
+      - listen_addresses=0.0.0.0
+      - -c
+      - shared_preload_libraries=pg_authorization
+      - -c
+      - pg_authorization.enabled=off
+      - -c
+      - fsync=off
+      - -c
+      - synchronous_commit=off
+      - -c
+      - full_page_writes=off
+      - -c
+      - max_connections=1000
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d abac_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres-cedar:
+    image: docker.io/lurkingryuu/postgres-cedar:latest
+    container_name: postgres-cedar
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: abac_test
+    ports:
+      - "15433:5432"
+    volumes:
+      - postgres-cedar-data:/var/lib/postgresql/data
+    networks:
+      - experiments
+    depends_on:
+      cedar-agent:
+        condition: service_healthy
+    # Force loading the authorization extension and set the agent URL
+    # These settings are now self-contained in the image or passed via flags
+    command: 
+      - postgres
+      - -c
+      - listen_addresses=0.0.0.0
+      - -c
+      - shared_preload_libraries=pg_authorization
+      - -c
+      - pg_authorization.cedar_agent_url=http://cedar-agent:8180
+      - -c
+      - pg_authorization.namespace=PostgreSQL
+      - -c
+      - pg_authorization.enabled=on
+      - -c
+      - pg_authorization.log_decisions=off
+      - -c
+      - fsync=off
+      - -c
+      - synchronous_commit=off
+      - -c
+      - full_page_writes=off
+      - -c
+      - max_connections=1000
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d abac_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # MySQL Services
+  mysql-baseline:
+    image: mysql:8.0.43
+    container_name: mysql-baseline
+    command: --max-connections=1000
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql-baseline-data:/var/lib/mysql
+    networks:
+      - experiments
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  mysql-cedar:
+    image: docker.io/lurkingryuu/mysql:latest
+    container_name: mysql-cedar
+    command: --max-connections=1000
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "13307:3306"
+    volumes:
+      - mysql-cedar-data:/var/lib/mysql
+    networks:
+      - experiments
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -prootpass || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  cedar-agent:
+    image: docker.io/lurkingryuu/cedar-agent:latest
+    container_name: cedar-agent
+    ports:
+      - "8280:8180"
+    volumes:
+      - ./context/mysql_schemas:/app/mysql_schemas:ro
+      - cedar-agent-state:/app/state
+    networks:
+      - experiments
+    command:
+      - -l
+      - info
+      - -s
+      - /app/mysql_schemas/schema.json
+      - -d
+      - /app/mysql_schemas/data.json
+      - --policies
+      - /app/mysql_schemas/policies.json
+      - --addr
+      - 0.0.0.0
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8180/v1/health || wget --no-verbose --tries=1 --spider http://localhost:8180/v1/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+# for arm64, we have the tag v2.12-arm64, and for x86, we have the tag 2.12.0, can we use a conditional image pull?
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:2.12.0
+    container_name: toxiproxy
+    ports:
+      - "8474:8474"
+    networks:
+      - experiments
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8474/version || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  mysql-baseline-data:
+  mysql-cedar-data:
+  postgres-baseline-data:
+  postgres-cedar-data:
+  cedar-agent-state:
+
+networks:
+  experiments:
+    driver: bridge
+    name: experiments

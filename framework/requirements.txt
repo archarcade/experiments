@@ -1,0 +1,13 @@
+# Framework Dependencies
+faker>=19.0.0
+mysql-connector-python>=8.0.0
+psycopg2-binary>=2.9.0
+matplotlib>=3.5.0
+seaborn>=0.12.0
+toxiproxy-python>=2.0.0
+requests>=2.25.0
+pandas>=1.5.0
+numpy>=1.21.0
+click>=8.0.0
+pyyaml>=6.0
+

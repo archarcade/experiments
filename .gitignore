@@ -1,0 +1,42 @@
+# UV virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Linter cache
+.ruff_cache/
+.mypy_cache/
+
+# Results and generated files
+queries/
+*.log
+results/
+analysis/
+workloads/
+paper_artifacts/
+data/
+
+# Generated images
+*.png
+*.pdf
+
+# Internal docs and examples
+benchmarks/
+examples/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+.!*!*
+

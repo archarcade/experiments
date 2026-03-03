@@ -1,0 +1,236 @@
+# Default configuration for MySQL Authorization Benchmark Framework
+# This file can be customized for your environment
+
+# Path to authorization specification file (can be overridden via CLI argument)
+auth_spec_path: auth_spec.json
+
+# Experiment Tag (used to organize results)
+experiment_tag: final_usenix_evaluation
+
+databases:
+  # MySQL databases
+  baseline:
+    host: 127.0.0.1
+    port: 13306
+    user: root
+    # Default password matches docker-compose.yml (MYSQL_ROOT_PASSWORD: rootpass)
+    # Can be overridden via BASELINE_MYSQL_PASSWORD environment variable
+    password: ${BASELINE_MYSQL_PASSWORD:-rootpass}
+    database: abac_test
+    type: mysql
+    # Increased pool size for high-volume testing
+    pool_size: 30
+
+  cedar:
+    host: 127.0.0.1
+    port: 13307
+    user: root
+    # Default password matches docker-compose.yml (MYSQL_ROOT_PASSWORD: rootpass)
+    # Can be overridden via CEDAR_MYSQL_PASSWORD environment variable
+    password: ${CEDAR_MYSQL_PASSWORD:-rootpass}
+    database: abac_test
+    type: mysql
+    # Increased pool size for high-volume testing
+    pool_size: 30
+
+  # PostgreSQL databases
+  postgres-baseline:
+    host: 127.0.0.1
+    port: 15432
+    user: bench_user
+    password: postgres
+    database: abac_test
+    type: postgres
+    pool_size: 30
+
+  postgres-cedar:
+    host: 127.0.0.1
+    port: 15433
+    user: bench_user
+    password: postgres
+    database: abac_test
+    type: postgres
+    pool_size: 30
+
+cedar_agent:
+  # URL for host access (CLI running on host machine)
+  # This is used when the CLI needs to communicate with Cedar agent
+  url: http://localhost:8280
+  
+  # Increased timeout for high-volume testing
+  timeout: 10
+  retry_attempts: 3
+  
+  # MySQL plugin configuration
+  # Each plugin has its own URL configuration for container access
+  plugins:
+    ddl_audit:
+      enabled: true
+      # URL for MySQL plugin to access Cedar agent (from inside container)
+      # Options:
+      # - docker-compose (same network): http://cedar-agent:8180
+      # - Docker Desktop (Mac/Windows): http://host.docker.internal:8280
+      # - Linux bridge: http://172.17.0.1:8280 (or host IP)
+      url: "http://cedar-agent:8180"
+      timeout_ms: 5000
+      namespace: "MySQL"
+    cedar_authorization:
+      enabled: true
+      # URL for authorization endpoint (full path)
+      # This is the complete URL the plugin will call
+      url: "http://cedar-agent:8180/v1/is_authorized"
+      timeout_ms: 5000
+      namespace: "MySQL"
+      # MySQL Authorization Cache configuration
+      cache_enabled: true
+      cache_size: 1000
+      cache_ttl: 300  # seconds
+      # Enable info-level logs from the cedar_authorization plugin (very noisy)
+      log_info: false
+      enable_column_access: false
+      collect_stats: false
+
+    pg_authorization:
+      collect_stats: false
+
+# Benchmark user configuration
+benchmark_user:
+  # User credentials for benchmarks
+  username: cedar_bench
+  password: benchpass123
+  
+  # Whether to use benchmark user (vs root) for actual benchmark runs
+  # Set to true for proper authorization overhead measurement
+  enabled: true
+  
+  # Verification settings
+  verify_auth_invocations: true
+  min_expected_auth_requests: 100  # Minimum auth requests per benchmark run
+
+workload:
+  seed: 42
+  # Increased to ensure enough queries for 100K iterations
+  # With multiple users/actions/tables, this should provide sufficient coverage
+  queries_per_combination: 1000
+  action_distribution:
+    SELECT: 0.60
+    INSERT: 0.15
+    UPDATE: 0.15
+    DELETE: 0.10
+
+benchmark:
+  # Large-scale testing: 10K iterations
+  iterations: 50000
+  # Warmup: 500 to ensure stable measurements
+  warmup_iterations: 500
+  # IMPORTANT: run each query using the workload's intended DB user (not root),
+  # otherwise authorization plugins/hook paths are bypassed and results can show
+  # misleading "speedups" dominated by server config differences.
+  use_query_user: true
+  # Moderate concurrency for faster execution while maintaining accuracy
+  # Adjust based on your system capacity (4-8 is reasonable for most systems)
+  concurrency: 8
+  # Increased timeout for high-volume testing
+  timeout: 120
+  
+  # Multi-run configuration for statistical rigor (USENIX requirement)
+  # Set n_runs >= 3 for proper confidence intervals
+  n_runs: 10
+  confidence_level: 0.95  # 95% confidence intervals
+  n_bootstrap: 10000
+
+output:
+  results_dir: ./results
+  workload_dir: ./workloads
+  analysis_dir: ./analysis
+  format: json
+  save_raw_data: true
+
+scaling:
+  policy_counts: [1, 10, 100, 1000, 10000]
+  iterations: 10000
+  warmup_iterations: 100
+  n_runs: 10
+  seed: null  # Uses workload.seed if null
+  reset: true  # Reset Cedar agent policies before starting
+  match_ratio: 0.4  # Ratio of matching policies (0.0-1.0)
+
+sysbench:
+  binary: sysbench
+  docker: false
+  db_name: abac_sysbench
+  oltp: oltp_read_write
+  tables: 16
+  table_size: 10000
+  duration: 30
+  threads: [1, 2, 4, 8, 12, 16]
+  n_runs: 10
+
+pgbench:
+  binary: pgbench
+  docker: true
+  db_name: abac_test
+  scale: 20
+  clients: 4
+  # pgbench worker threads; if null, the runner will default to jobs=clients.
+  jobs: null
+  duration: 300
+  warmup: 30
+  n_runs: 10
+
+tpcc:
+  # Paths to TPC-C implementations (can be set via environment)
+  tpcc_lua_path: ${TPCC_LUA_PATH:-"../benchmarks/sysbench-tpcc/tpcc.lua"}
+  tpcc_mysql_home: ${TPCC_MYSQL_HOME:-"../benchmarks/tpcc-mysql"}
+  warehouses: 10
+  scale: 10
+  terminals: 10
+  connections: 10
+  threads: 16
+  duration_s: 60
+  run_mins: 5
+  prepare: true
+  cleanup: true
+  n_runs: 10
+
+failure_tests:
+  agent_url: http://localhost:8280/v1/is_authorized  # Cedar agent URL from host
+  proxy:
+    enabled: true
+    name: "cedar_agent_proxy"
+    host: "127.0.0.1"
+    listen_port: 8182  # Port where proxy listens (different from control API port 8474)
+    control_api: "http://127.0.0.1:8474"  # Toxiproxy control API port
+    upstream_host: "127.0.0.1"
+    upstream_port: 8280  # Actual Cedar agent port (from cedar_agent.url)
+  delays_ms: [0, 5, 10, 20, 50, 100, 200, 500]
+  sql_repetitions: 100
+  mysql:
+    host: "127.0.0.1"
+    port: 13307  # Cedar MySQL port (from databases.cedar.port)
+    db: "abac_test"
+    users:
+        user_bob: ""  # Empty password as created by setup-cedar
+    query: "SELECT * FROM abac_test.projects LIMIT 1;"
+  agent_stress:
+    rps_list: [100, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 2400, 3200]
+    duration_s: 120
+    warmup_s: 10
+    auth_request_body: |
+      {
+        "principal": "MySQL::User::\"user_bob\"",
+        "action": "MySQL::Action::\"SELECT\"",
+        "resource": "MySQL::Table::\"abac_test.projects\"",
+        "context": {
+          "day": "wed",
+          "date": 20260122,
+          "ip": {"__extn": {"fn": "ip", "arg": "127.0.0.1"}}
+        }
+      }
+    expected_decision: "Allow"
+  timeouts_ms: [50]  # Shorter timeout for faster unavailability testing (500ms instead of 5000ms)
+
+cache_analysis:
+  rps: 5000
+  unique_combos: 1000
+  stale_ok: 60

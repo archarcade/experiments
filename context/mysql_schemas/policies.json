@@ -1,0 +1,6 @@
+[
+  {
+    "id": "policy-1",
+    "content": "permit(principal == PostgreSQL::User::\"bench_user\", action, resource);"
+  }
+]
