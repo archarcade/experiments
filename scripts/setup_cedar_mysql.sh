@@ -137,7 +137,7 @@ else
         echo "Or start it manually with:"
         echo "  docker run -d --name cedar-agent-experiments -p 8280:8180 \\"
         echo "    -v \"\$(pwd)/experiments/context/mysql_schemas:/app/mysql_schemas:ro\" \\"
-        echo "    docker.io/lurkingryuu/cedar-agent:latest \\"
+        echo "    ghcr.io/archarcade/cedar-agent:latest \\"
         echo "    -l info -s /app/mysql_schemas/schema.json \\"
         echo "    -d /app/mysql_schemas/data.json \\"
         echo "    --policies /app/mysql_schemas/policies.json \\"

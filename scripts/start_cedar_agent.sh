@@ -9,7 +9,7 @@ EXPERIMENTS_DIR="$(dirname "$SCRIPT_DIR")"
 MYSQL_SCHEMAS_DIR="$EXPERIMENTS_DIR/context/mysql_schemas"
 
 CEDAR_AGENT_PORT="${CEDAR_AGENT_PORT:-8280}"
-CEDAR_AGENT_IMAGE="${CEDAR_AGENT_IMAGE:-docker.io/lurkingryuu/cedar-agent:latest}"
+CEDAR_AGENT_IMAGE="${CEDAR_AGENT_IMAGE:-ghcr.io/archarcade/cedar-agent:latest}"
 CEDAR_AGENT_NAME="${CEDAR_AGENT_NAME:-cedar-agent-experiments}"
 LOG_LEVEL="${LOG_LEVEL:-info}"
 

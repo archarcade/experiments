@@ -1,7 +1,7 @@
 services:
   # PostgreSQL Services
   postgres-baseline:
-    image: docker.io/lurkingryuu/postgres-cedar:latest
+    image: ghcr.io/archarcade/postgres-cedar:latest
     container_name: postgres-baseline
     environment:
       POSTGRES_USER: postgres
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
 
   postgres-cedar:
-    image: docker.io/lurkingryuu/postgres-cedar:latest
+    image: ghcr.io/archarcade/postgres-cedar:latest
     container_name: postgres-cedar
     environment:
       POSTGRES_USER: postgres
@@ -104,7 +104,7 @@ services:
     restart: unless-stopped
 
   mysql-cedar:
-    image: docker.io/lurkingryuu/mysql:latest
+    image: ghcr.io/archarcade/mysql:latest
     container_name: mysql-cedar
     command: --max-connections=1000
     environment:
@@ -123,7 +123,7 @@ services:
     restart: unless-stopped
 
   cedar-agent:
-    image: docker.io/lurkingryuu/cedar-agent:latest
+    image: ghcr.io/archarcade/cedar-agent:latest
     container_name: cedar-agent
     ports:
       - "8280:8180"

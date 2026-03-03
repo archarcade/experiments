@@ -1,7 +1,7 @@
 services:
   # PostgreSQL Services
   postgres-baseline:
-    image: docker.io/lurkingryuu/postgres-cedar:latest
+    image: ghcr.io/archarcade/postgres-cedar:latest
     container_name: postgres-baseline
     environment:
       POSTGRES_USER: postgres
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
 
   postgres-cedar:
-    image: docker.io/lurkingryuu/postgres-cedar:latest
+    image: ghcr.io/archarcade/postgres-cedar:latest
     container_name: postgres-cedar
     environment:
       POSTGRES_USER: postgres
@@ -89,7 +89,7 @@ services:
   # - Cedar: cedar_authorization_url IS set → plugin makes auth requests to Cedar agent
   # This ensures any overhead measured is purely from Cedar authorization, not image differences.
   mysql-baseline:
-    image: docker.io/lurkingryuu/mysql:latest
+    image: ghcr.io/archarcade/mysql:latest
     container_name: mysql-baseline
     command: --max-connections=1000
     # Note: Cedar plugin is loaded but NOT configured (no URL set).
@@ -111,7 +111,7 @@ services:
     restart: unless-stopped
 
   mysql-cedar:
-    image: docker.io/lurkingryuu/mysql:latest
+    image: ghcr.io/archarcade/mysql:latest
     container_name: mysql-cedar
     command: --max-connections=1000
     environment:
@@ -130,7 +130,7 @@ services:
     restart: unless-stopped
 
   cedar-agent:
-    image: docker.io/lurkingryuu/cedar-agent:latest
+    image: ghcr.io/archarcade/cedar-agent:latest
     container_name: cedar-agent
     ports:
       - "8280:8180"
